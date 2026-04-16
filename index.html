@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Test 2</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon fill='orange' points='50,10 61,40 94,40 68,60 78,90 50,70 22,90 32,60 6,40 39,40'/></svg>">
+  <meta name="referrer" content="no-referrer">
+
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.ui.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.css" />
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .shaka-video-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .custom-watermark {
+      position: absolute;
+      z-index: 40;
+      pointer-events: none;
+      top: 65%;
+      left: 6%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.12);
+    }
+
+    @media(max-width: 700px){
+      .custom-watermark { font-size: 9px; top: 60%; left: 16%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="shaka-video-container" id="player-container">
+    <video id="video" autoplay playsinline preload="metadata"></video>
+    <div class="custom-watermark"> </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      shaka.polyfill.installAll();
+      if (!shaka.Player.isBrowserSupported()) return;
+
+      const videoEl = document.getElementById('video');
+      const container = document.getElementById('player-container');
+
+      const player = new shaka.Player(videoEl);
+      const ui = new shaka.ui.Overlay(player, container, videoEl);
+
+      ui.configure({
+        addBigPlayButton: true,
+        controlPanelElements: ['play_pause','time_and_duration','mute','volume','spacer','language','captions','picture_in_picture','quality','fullscreen'],
+        seekBarColors: { base: 'white', buffered: 'red', played: 'green' }
+      });
+
+      const kid = "609ace1518f15ee2bcee407f5e435fed";
+      const key = "533464a6d57d3e40b61b8fa8c4fe6627";
+      const cookieHeader = "__hdnea__=st=1776333636~exp=1776355236~acl=/*~hmac=04d64b5e89d37d560d24c4971f9865e90d38198ae5f3a434054c1d5849d500fb";
+      const streamUrl = "https://jiotvmblive.cdn.jio.com/bpk-tv/Aaj_Tak_MOB/WDVLive/index.mpd";
+
+      let drmConfig = { clearKeys: {} };
+      if (kid !== "Null" && key !== "Null") {
+        drmConfig.clearKeys[kid] = key;
+      }
+
+      player.configure({
+        drm: drmConfig,
+        manifest: { defaultPresentationDelay: 5 },
+        streaming: { safeSeekOffset: 5, bufferingGoal: 10, rebufferingGoal: 2, lowLatencyMode: true }
+      });
+
+      player.getNetworkingEngine().registerRequestFilter((type, request) => {
+        request.headers['Referer'] = 'https://www.jiotv.com/';
+        request.headers['User-Agent'] = 'plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6';
+
+        if (cookieHeader && cookieHeader !== "PUT_YOUR_COOKIE_HERE") {
+          request.headers['Cookie'] = cookieHeader;
+
+          if ((type === shaka.net.NetworkingEngine.RequestType.MANIFEST ||
+               type === shaka.net.NetworkingEngine.RequestType.SEGMENT) &&
+               !request.uris[0].includes('__hdnea__')) {
+            const sep = request.uris[0].includes('?') ? '&' : '?';
+            request.uris[0] += sep + cookieHeader;
+          }
+        }
+      });
+
+      try {
+        await player.load(streamUrl);
+        videoEl.play();
+      } catch (e) {
+        console.error("Stream Load Error:", e);
+        if (e.code === 6001) { 
+            player.configure({ drm: {} });
+            try { await player.load(streamUrl); videoEl.play(); } catch(err){}
+        }
+      }
+    });
+  </script>
+</body>
+</html>
