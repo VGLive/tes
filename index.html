@@ -1,127 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Test 2</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon fill='orange' points='50,10 61,40 94,40 68,60 78,90 50,70 22,90 32,60 6,40 39,40'/></svg>">
-  <meta name="referrer" content="no-referrer">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Sports</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon fill='orange' points='50,10 61,40 94,40 68,60 78,90 50,70 22,90 32,60 6,40 39,40'/></svg>">    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --accent: #00ff9f;
+            --card-bg: rgba(20, 25, 45, 0.9);
+        }
 
-  <script src="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.ui.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.css" />
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
+        .header {
+            padding: 40px 20px;
+            text-align: center;
+        }
 
-    .shaka-video-container {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+        .header h1 {
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(0, 255, 159, 0.5);
+            margin: 0;
+            font-size: 2.5rem;
+        }
 
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000;
-    }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px;
+        }
 
-    .custom-watermark {
-      position: absolute;
-      z-index: 40;
-      pointer-events: none;
-      top: 65%;
-      left: 6%;
-      transform: translateY(-50%);
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.12);
-    }
+        .channel-card {
+            background: var(--card-bg);
+            border: 2px solid rgba(0, 255, 159, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
 
-    @media(max-width: 700px){
-      .custom-watermark { font-size: 9px; top: 60%; left: 16%; }
-    }
-  </style>
+        .channel-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0, 255, 159, 0.2);
+        }
+
+        .logo-box {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .logo-box img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+
+        .channel-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .live-badge {
+            background: #ff4757;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .grid-container { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-  <div class="shaka-video-container" id="player-container">
-    <video id="video" autoplay playsinline preload="metadata"></video>
-    <div class="custom-watermark"> </div>
-  </div>
+    <div class="header">
+        <h1>VG TV</h1>
+        <p>Premium Hindi Channels</p>
+    </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      shaka.polyfill.installAll();
-      if (!shaka.Player.isBrowserSupported()) return;
+    <div class="grid-container">
+        
+        <a href="https://starsportslive1.vercel.app/" class="channel-card" target="_blank">
+            <div class="logo-box">
+                <img src="https://jiotv.catchup.cdn.jio.com/dare_images/images/Aaj_Tak.png" alt="Aaj Tak">
+            </div>
+            <div class="channel-name">Star Sports 1 Hindi HD</div>
+            <div class="live-badge">Live</div>
+        </a>
 
-      const videoEl = document.getElementById('video');
-      const container = document.getElementById('player-container');
+        <a href="https://starsportslive2.vercel.app/" class="channel-card" target="_blank">
+            <div class="logo-box">
+                <img src="https://raw.githubusercontent.com/VGLive/ss/refs/heads/main/2.png" alt="Star Sports 2 Hindi HD">
+            </div>
+            <div class="channel-name">Star Sports 2 Hindi HD</div>
+            <div class="live-badge">Live</div>
+        </a>
 
-      const player = new shaka.Player(videoEl);
-      const ui = new shaka.ui.Overlay(player, container, videoEl);
+        <a href="https://starsportslive3.vercel.app/" class="channel-card" target="_blank">
+            <div class="logo-box">
+                <img src="https://raw.githubusercontent.com/VGLive/ss/refs/heads/main/3.png" alt="Star Sports 1 HD">
+            </div>
+            <div class="channel-name">Star Sports 1 Hindi</div>
+            <div class="live-badge">Live</div>
+        </a>
 
-      ui.configure({
-        addBigPlayButton: true,
-        controlPanelElements: ['play_pause','time_and_duration','mute','volume','spacer','language','captions','picture_in_picture','quality','fullscreen'],
-        seekBarColors: { base: 'white', buffered: 'red', played: 'green' }
-      });
+        <a href="https://starsportslive4.vercel.app/" class="channel-card" target="_blank">
+            <div class="logo-box">
+                <img src="https://raw.githubusercontent.com/VGLive/ss/refs/heads/main/4.png" alt="Star Sports 2 HD">
+            </div>
+            <div class="channel-name">Star Sports 2 Hindi</div>
+            <div class="live-badge">Live</div>
+        </a>
 
-      const kid = "9457eb90129456fa8ea95e10ba4ac51e";
-      const key = "e620a970cea474c491ac78ae71a4d764";
-      const cookieHeader = "__hdnea__=st=1775976611~exp=1775998211~acl=/bpk-tv/Star_Sports_HD2_BTS/output/*~hmac=3a1621542643658df0187805e9d4b13cc20bd7a01494b05dc483261d0bb7ccab";
-      const streamUrl = "https://jiotvpllive.cdn.jio.com/bpk-tv/Star_Sports_HD2_BTS/output/index.mpd";
+    </div>
 
-      let drmConfig = { clearKeys: {} };
-      if (kid !== "Null" && key !== "Null") {
-        drmConfig.clearKeys[kid] = key;
-      }
-
-      player.configure({
-        drm: drmConfig,
-        manifest: { defaultPresentationDelay: 5 },
-        streaming: { safeSeekOffset: 5, bufferingGoal: 10, rebufferingGoal: 2, lowLatencyMode: true }
-      });
-
-      player.getNetworkingEngine().registerRequestFilter((type, request) => {
-        request.headers['Referer'] = 'https://www.jiotv.com/';
-        request.headers['User-Agent'] = 'plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6';
-
-        if (cookieHeader && cookieHeader !== "PUT_YOUR_COOKIE_HERE") {
-          request.headers['Cookie'] = cookieHeader;
-
-          if ((type === shaka.net.NetworkingEngine.RequestType.MANIFEST ||
-               type === shaka.net.NetworkingEngine.RequestType.SEGMENT) &&
-               !request.uris[0].includes('__hdnea__')) {
-            const sep = request.uris[0].includes('?') ? '&' : '?';
-            request.uris[0] += sep + cookieHeader;
-          }
-        }
-      });
-
-      try {
-        await player.load(streamUrl);
-        videoEl.play();
-      } catch (e) {
-        console.error("Stream Load Error:", e);
-        if (e.code === 6001) { 
-            player.configure({ drm: {} });
-            try { await player.load(streamUrl); videoEl.play(); } catch(err){}
-        }
-      }
-    });
-  </script>
 </body>
 </html>
