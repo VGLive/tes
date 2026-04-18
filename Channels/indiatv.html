@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>India TV</title>
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'><path fill='red' d='M64 64V352H576V64H64zM0 64C0 28.7 28.7 0 64 0H576c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM128 448H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H128c-17.7 0-32-14.3-32-32s14.3-32 32-32z'/></svg>">
+<script src="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.ui.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.css"/>
+
+  <style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+
+.shaka-video-container{
+position:fixed;
+inset:0;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+video{
+width:100%;
+height:100%;
+object-fit:contain;
+background:#000;
+}
+
+.custom-watermark{
+position:absolute;
+z-index:40;
+pointer-events:none;
+top:65%;
+left:6%;
+transform:translateY(-50%);
+font-size:11px;
+font-weight:600;
+color:rgba(255,255,255,0.12);
+}
+
+@media(max-width:700px){
+.custom-watermark{font-size:9px;top:60%;left:16%}
+}
+</style>
+</head>
+    
+<body>
+
+<div class="shaka-video-container" id="player-container">
+<video id="video" autoplay muted playsinline preload="metadata"></video>
+<div class="custom-watermark"> </div>
+</div>
+
+<script>
+(function(){
+  const CONFIG={
+    streamUrl:"https://jiotvmblive.cdn.jio.com/bpk-tv/India_TV_MOB/WDVLive/index.mpd",
+    keyId:"c6d6b3104f03558283c5bea6bb387a41",
+    key:"561ee86909f10796243328f2dd68c935",
+    cookieUrl:"https://raw.githubusercontent.com/VGLive/tv/refs/heads/main/cookie.json"
+  };
+
+  document.addEventListener("DOMContentLoaded",async()=>{
+
+    shaka.polyfill.installAll();
+    if(!shaka.Player.isBrowserSupported()) return;
+
+    const video=document.getElementById("video");
+    const container=document.getElementById("player-container");
+
+    video.muted=true;
+
+    const player=new shaka.Player();
+    await player.attach(video);
+
+    const ui=new shaka.ui.Overlay(player,container,video);
+
+    ui.configure({
+        addBigPlayButton: true,
+        controlPanelElements: [  
+          'play_pause', 'time_and_duration', 'mute', 'volume',  
+          'spacer', 'language', 'captions', 'picture_in_picture',  
+          'quality', 'fullscreen'  
+        ],  
+        seekBarColors: {  
+          base: 'white',  
+          buffered: 'red',  
+          played: 'green'  
+        }
+      });
+
+    player.configure({
+      drm:{clearKeys:{[CONFIG.keyId]:CONFIG.key}},
+      manifest:{defaultPresentationDelay:5},
+      streaming:{
+        lowLatencyMode:true,
+        bufferingGoal:10,
+        rebufferingGoal:2,
+        safeSeekOffset:5
+      }
+    });
+
+    let cookieValue="";
+
+    try{
+      const response=await fetch(CONFIG.cookieUrl,{cache:"no-store"});
+      const data=await response.json();
+      cookieValue=data.cookie||"";
+    }catch(e){}
+
+    if(cookieValue){
+      player.getNetworkingEngine().registerRequestFilter((type,request)=>{
+        request.headers["Referer"]="https://www.jiotv.com/";
+        request.headers["User-Agent"]="plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6";
+        request.headers["Cookie"]=cookieValue;
+
+        let urlCookie=cookieValue.startsWith("__hdnea__=")?cookieValue.substring(10):cookieValue;
+
+        if((type===shaka.net.NetworkingEngine.RequestType.MANIFEST||
+        type===shaka.net.NetworkingEngine.RequestType.SEGMENT)&&
+        !request.uris[0].includes("__hdnea__")){
+          const sep=request.uris[0].includes("?")?"&":"?";
+          request.uris[0]+=sep+"__hdnea__="+urlCookie;
+        }
+      });
+    }
+
+    try{
+      await player.load(CONFIG.streamUrl);
+      video.play().catch(()=>{});
+    }catch(e){}
+
+    video.addEventListener("play",()=>{
+      video.muted=true;
+    }, { once: true });
+
+  });
+})();
+</script>
+</body>
+</html>
